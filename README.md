@@ -17,7 +17,7 @@ link_directories(/usr/lib/x86_64-linux-gnu)
 # 链接到库
 target_link_libraries(gridnn_test glog)
 ```
-一个完整的CMakeLists.txt示例如下：
+## 一个完整的CMakeLists.txt：
 ```cmake
 # 最低cmake版本需求
 cmake_minimum_required(VERSION 3.16)
