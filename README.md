@@ -49,5 +49,6 @@ target_link_libraries(gridnn_test glog) # 链接到库
 target_link_libraries(gridnn_test ${PCL_LIBRARIES})
 target_link_libraries(gridnn_test glog)
 target_link_libraries(gridnn_test TBB::tbb)
-
 ```
+# 内存对齐
+对于64位的cpu和内存，cpu访问物理内存时，可以一次性获取8个字节的数据，但是只能以8的整数倍作为起始地址，例如0x0000、0x0008。如果一个4字节的数据存放在0x0006到0x0009，那么cpu要访问它需要分别读取0x0000到0x0007的内存区域和0x0008到0x000E的内存区域，增大了时间开销；正确的做法是把这个变量放在以4的整数倍为起始的内存地址，也就是**内存对齐**，这样能节省CPU的访问时间。
