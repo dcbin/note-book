@@ -92,3 +92,14 @@ struct B{
 可以这样理解：这里的方向向量会随着图像的旋转而旋转（因为质心随着图像一起旋转，在图像中的相对位置不变），所以就把这个方向向量作为主方向（相当于坐标轴），把关键点周围的图像块旋转到与这个主方向一致（假设主方向与x轴夹角为$`\theta`$，那么就将图像块旋转$`\theta`$），然后再生成描述子，使得关描述子具有方向不变性。
 ## 改进BRIEF描述子-rBRIEF
 经过上面那一步操作，描述子已经具备了方向不变性，ORB还对BRIEF做了些改进，主要是为了增加描述子的可区分度，具体细节没仔细看。
+# 关于OpenCV
+## 关键点的存储
+关键点的数据结构是cv::KeyPoint。存储的东西有：
+``` java
+@param pt x & y coordinates of the keypoint
+@param size 关键点的邻域范围
+@param angle 关键点邻域内的主方向
+@param response 关键点检测器计算的响应值，例如Harris响应值
+@param octave 关键点所处的金字塔层级
+@param class_id object id
+```
