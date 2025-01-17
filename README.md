@@ -170,3 +170,6 @@ float y_1 = keypoints1[matches_all[0].queryIdx].pt.y;
 float x_2 = keypoints2[matches_all[0].trainIdx].pt.x;
 float y_2 = keypoints2[matches_all[0].trainIdx].pt.y;
 ```
+# 一些术语
+## 归一化平面
+假设相机坐标系中有一个点$`P_c=(X_c,Y_c,Z_c)`$，那么它在归一化平面的坐标为：$`P=(\frac{{{X_c}}}{{{Z_c}}},\frac{{{Y_c}}}{{{Z_c}}},1)`$。也就是说，归一化平面是与相机光心所在平面距离为1的平面。
