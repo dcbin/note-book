@@ -92,9 +92,52 @@ struct B{
 可以这样理解：这里的方向向量会随着图像的旋转而旋转（因为质心随着图像一起旋转，在图像中的相对位置不变），所以就把这个方向向量作为主方向（相当于坐标轴），把关键点周围的图像块旋转到与这个主方向一致（假设主方向与x轴夹角为$`\theta`$，那么就将图像块旋转$`\theta`$），然后再生成描述子，使得关描述子具有方向不变性。
 ## 改进BRIEF描述子-rBRIEF
 经过上面那一步操作，描述子已经具备了方向不变性，ORB还对BRIEF做了些改进，主要是为了增加描述子的可区分度，具体细节没仔细看。
+## 使用ORB算法的流程
+``` cpp
+// 初始化
+cv::Mat descriptors1, descriptors2;
+cv::Ptr<cv::FeatureDetector> detector = cv::ORB::create();
+cv::Ptr<cv::DescriptorExtractor> descriptor = cv::ORB::create();
+cv::BFMatcher matcher(cv::NORM_HAMMING);
+// 第一步:检测Oriented FAST角点位置
+detector->detect(img1, keypoints1);
+detector->detect(img2, keypoints2);
+
+// 第二步:根据角点位置计算BRIEF描述子
+descriptor->compute(img1, keypoints1, descriptors1);
+descriptor->compute(img2, keypoints2, descriptors2);
+
+// 第三步:对两幅图像中的BRIEF描述子进行匹配,使用Hamming距离
+std::vector<cv::DMatch> matches_all;
+matcher.match(descriptors1, descriptors2, matches_all);
+
+// 第四步：匹配点对筛选
+double min_dist = 10000, max_dist = 0;
+
+// 找出所有匹配之间的最小距离和最大距离,即是最相似的和最不相似的两组点之间的距离
+for (int i = 0; i < descriptors1.rows; i++)
+{
+  double dist = matches_all[i].distance;
+  if (dist < min_dist)
+      min_dist = dist;
+  if (dist > max_dist)
+      max_dist = dist;
+}
+printf("-- Max dist : %f \n", max_dist);
+printf("-- Min dist : %f \n", min_dist);
+
+// 当描述子之间的距离大于两倍的最小距离时,即认为匹配有误
+for (int i = 0; i < descriptors1.rows; i++)
+{
+  if (matches_all[i].distance <= std::max(2 * min_dist, 20.0))
+  {
+      matches.push_back(matches_all[i]);
+  }
+}
+```
 # 关于OpenCV
 ## 关键点的存储
-关键点的数据结构是cv::KeyPoint。存储的东西有：
+关键点的数据结构是```cv::KeyPoint```。一般会创建一个vector来存储关键点：```std::vector\<cv::KeyPoint> keypoints```。一个KeyPoint包括：
 ``` java
 @param pt x & y coordinates of the keypoint
 @param size 关键点的邻域范围
@@ -102,4 +145,28 @@ struct B{
 @param response 关键点检测器计算的响应值，例如Harris响应值
 @param octave 关键点所处的金字塔层级
 @param class_id object id
+```
+## 描述子的存储
+关键点描述子是一个向量，所以直接用```cv::Mat```来存储描述子。矩阵的每一行代表一个关键点的描述子向量，如果有m个描述子，描述子向量的长度为n，则一张图像的关键点描述子矩阵的维数是$`m \times n`$。
+## 匹配结果的存储
+两张图片的关键点匹配结果存储在```cv::DMatch```中，它的成员变量有：
+```cpp
+CV_PROP_RW int queryIdx; // 关键点在第一个描述子向量中的索引
+CV_PROP_RW int trainIdx; // 关键点在第一个描述子向量中的索引
+CV_PROP_RW int imgIdx;   // 多源图像匹配的参数，用不上
+CV_PROP_RW float distance; // 当前两个关键点的距离，在ORB中是汉明距离
+```
+假设有两个准备好的描述子，对他们俩进行匹配，匹配结果存在一个```std::vector<cv::DMatch> matches_all```中：
+```cpp
+std::vector<cv::DMatch> matches_all;
+matcher.match(descriptors1, descriptors2, matches_all);
+```
+那么，可以通过以下方式查询匹配点在两张图像中的索引（x、y索引）：
+```cpp
+// 获取第0个匹配结果在第一张图片中的关键点坐标
+float x_1 = keypoints1[matches_all[0].queryIdx].pt.x;
+float y_1 = keypoints1[matches_all[0].queryIdx].pt.y;
+// 获取第0个匹配结果在第二张图片中的关键点坐标
+float x_2 = keypoints2[matches_all[0].trainIdx].pt.x;
+float y_2 = keypoints2[matches_all[0].trainIdx].pt.y;
 ```
