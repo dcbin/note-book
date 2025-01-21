@@ -220,6 +220,6 @@ float y_2 = keypoints2[matches_all[0].trainIdx].pt.y;
 {{Y_i}}\\
 {{Z_i}}\\
 1
-\end{array}} \right] \tag{1} \label{eq1}
+\end{array}} \right] \label{eq1}
 ```
 其中$`\xi `$即是相机外参对应的李代数，是一个6维的列向量(描述平移和旋转)。但是，刚开始时我们是不知道$`\xi `$的，优化的思想就是先给$`\xi `$一个初值，现在$`\eqref{eq1}`$的
