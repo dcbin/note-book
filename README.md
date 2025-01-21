@@ -208,7 +208,7 @@ float y_2 = keypoints2[matches_all[0].trainIdx].pt.y;
 投影矩阵共有12个未知数，每一对3D-2D匹配点对可以提供两个方程（具体推导见14讲第161页），所以直接变换法最少需要6对匹配点（多于6对则使用最小二乘法）即可求解出投影矩阵，然后根据投影矩阵反求相机内外参。  
 在我看来，DLT其实做的是相机标定的事（已知棋盘格角点的世界坐标和像素坐标，求相机内参），跟前面相机的运动估计不太一样，因为运动估计不知道特征点的世界坐标。  
 值得注意的是，这里忽略了投影矩阵各参数之间的联系，最后解出来的投影矩阵的左上角的旋转矩阵可能不是正交的，需要做QR分解把它投影到SE(3)中去。
-### Bundle Adjustment
+## Bundle Adjustment
 在一帧图像中，如果有多对在世界坐标系中的3D点和它们对应在像素坐标系下的2D点，则可以用非线性优化的思想，求取一个最优的相机位姿。理论上，这些3D-2D点对满足：
 ```math
 \left[ {\begin{array}{*{20}{c}}
@@ -250,7 +250,7 @@ float y_2 = keypoints2[matches_all[0].trainIdx].pt.y;
 ```math
 e = \sum\limits_{i = 1}^n {\frac{1}{2}\left\| {{e_i}} \right\|_2^2}
 ```
-如果要优化相机的外参$`\xi `$，则把其余变量视为常量(其实除了$`P_w^i`$其他本身也是常量)，将$`e_i`$在$`\xi `$处**一阶泰勒展开**(这样做的好处参考十四讲P116)，用它的一阶泰勒展开式来近似$`e_i`$在$`\xi `$处的值：
+- 要优化相机的外参$`\xi `$，则把其余变量视为常量(其实除了$`P_w^i`$其他本身也是常量)，将$`e_i`$在$`\xi `$处**一阶泰勒展开**(这样做的好处参考十四讲P116)，用它的一阶泰勒展开式来近似$`e_i`$在$`\xi `$处的值：
 ```math
 e\left( {{{(\xi  + \Delta \xi )}^ \wedge }} \right) \approx e({\xi ^ \wedge }) + J({\xi ^ \wedge })\Delta {\xi ^ \wedge }
 ```
@@ -263,7 +263,11 @@ e\left( {{{(\xi  + \Delta \xi )}^ \wedge }} \right) \approx e({\xi ^ \wedge }) +
 J({\xi ^ \wedge }) = \frac{{\partial {e_i}}}{{\partial \xi }} = \frac{{\partial {e_i}}}{{\partial P_c^i}} \cdot \frac{{\partial P_c^i}}{{\partial \xi}} = {J_1}{J_2}
 ```
 需要分别求两个雅克比矩阵。
-#### 求雅可比矩阵$`J_1`$
+- 要优化空间点的位置$`P_w^i`$，需要求误差量对$`P_w^i`$的导数(雅可比矩阵)：$`\frac{{\partial {\mathbf{e}}}}{{\partial {\mathbf{P}}_w^i}}`$，根据关系式$`{e_i} = P_{uv}^i - \frac{1}{{{s_i}}}KP_c^i`$，利用链式求导法则：
+```math
+\frac{{\partial {{\mathbf{e}}_i}}}{{\partial {\mathbf{P}}_w^i}} = \frac{{\partial {{\mathbf{e}}_i}}}{{\partial {\mathbf{P}}_c^i}}\frac{{\partial {\mathbf{P}}_c^i}}{{\partial {\mathbf{P}}_w^i}} = {{\mathbf{J}}_3}{{\mathbf{J}}_4}
+```
+### 求雅可比矩阵$`J_1`$
 因为$`P_{uv}^i`$是个常数，所以$`\frac{{\partial {e_i}}}{{\partial P_c^i}}`$可以写成：
 ```math
 \frac{{\partial {e_i}}}{{\partial P_c^i}} = \frac{{ - \partial P_i^\prime}}{{\partial P_c^i}}
@@ -305,7 +309,7 @@ J({\xi ^ \wedge }) = \frac{{\partial {e_i}}}{{\partial \xi }} = \frac{{\partial 
    0 & \frac{{{f}_{y}}}{Z_{c}^{'}} & -\frac{{{f}_{y}}Y_{c}^{'}}{Z{{_{c}^{'}}^{2}}}  \\
 \end{array} \right]
 ```
-#### 求雅可比矩阵$`J_2`$
+### 求雅可比矩阵$`J_2`$
 推导过程参考:https://zhuanlan.zhihu.com/p/460985235. 简单来说就是利用扰动模型求导，直接给出结果：
 ```math
 \frac{{\partial P_c^i}}{{\partial \xi }} = {J_2} = {\left[ {\begin{array}{*{20}{c}}
@@ -316,3 +320,8 @@ J({\xi ^ \wedge }) = \frac{{\partial {e_i}}}{{\partial \xi }} = \frac{{\partial 
 \end{array}} \right]
 ```
 将两个雅可比矩阵相乘即可得到所求的雅可比矩阵。
+### 求雅可比矩阵$`J_3`$和$`J_4`$
+$`J_3`$与$`J_1`$完全相同，下面推导$`J_4`$：
+```math
+{{\mathbf{J}}_4} = \frac{{\partial {\mathbf{P}}_c^i}}{{\partial {\mathbf{P}}_w^i}} = \frac{{\partial \left( {{{\mathbf{R}}_{cw}}{\mathbf{P}}_w^i + t} \right)}}{{\partial {\mathbf{P}}_w^i}} = {{\mathbf{R}}_{cw}}
+```
