@@ -246,40 +246,40 @@ e\left( {{{(\xi  + \Delta \xi )}^ \wedge }} \right) \approx e({\xi ^ \wedge }) +
 ```
 求$`e_i`$对$`\xi `$的雅克比矩阵比求$`e`$对$`\xi `$的雅克比矩阵简单的多，不妨把$`e_i`$写成:
 ```math
-e_i = P_{uv}^i - \frac{1}{{s_i}} K P_c^i = P_{uv}^i - P_i'
+{e_i} = P_{uv}^i - \frac{1}{{{s_i}}}KP_c^i = P_{uv}^i - {P_i ^ \prime}
 ```
 则根据链式求导法则：
 ```math
-J({\xi ^ \wedge }) = \frac{{\partial {e_i}}}{{\partial \xi }} = \frac{{\partial {e_i}}}{{\partial P_c^i}} \cdot \frac{{\partial P_c^i}}{{\partial \xi }}
+J({\xi ^ \wedge }) = \frac{{\partial {e_i}}}{{\partial \xi }} = \frac{{\partial {e_i}}}{{\partial P_c^i}} \cdot \frac{{\partial P_c^i}}{{\partial \xi}}
 ```
 因为$`P_{uv}^i`$是个常数，所以可以写成：
 ```math
-\frac{{\partial {e_i}}}{{\partial P_c^i}} = \frac{{ - \partial P_i^'}}{{\partial P_c^i}}
+\frac{{\partial {e_i}}}{{\partial P_c^i}} = \frac{{ - \partial P_i^\prime}}{{\partial P_c^i}}
 ```
 写出具体的表达式：
 ```math
 \left[ {\begin{array}{*{20}{c}}
-{{u^'}}\\
-{{v^'}}\\
+{{u^\prime}}\\
+{{v^\prime}}\\
 1
-\end{array}} \right] = \frac{1}{{Z_c^'}}K\left[ {\begin{array}{*{20}{c}}
-{X_c^'}\\
-{Y_c^'}\\
-{Z_c^'}
+\end{array}} \right] = \frac{1}{{Z_c^\prime}}K\left[ {\begin{array}{*{20}{c}}
+{X_c^\prime}\\
+{Y_c^\prime}\\
+{Z_c^\prime}
 \end{array}} \right] = \left[ {\begin{array}{*{20}{c}}
 {{f_x}}&0&{{c_x}}\\
 0&{{f_y}}&{{c_y}}\\
 0&0&1
 \end{array}} \right]\left[ {\begin{array}{*{20}{c}}
-{\frac{{X_c^'}}{{Z_c^'}}}\\
-{\frac{{Y_c^'}}{{Z_c^'}}}\\
+{\frac{{X_c^\prime}}{{Z_c^\prime}}}\\
+{\frac{{Y_c^\prime}}{{Z_c^\prime}}}\\
 1
 \end{array}} \right]
 ```
 即:
 ```math
 \left\{ {\begin{array}{*{20}{c}}
-{{u^'} = {f_x}\frac{{X_c^'}}{{Z_c^'}} + {c_x}}\\
-{{v^'} = {f_y}\frac{{Y_c^'}}{{Z_c^'}} + {c_y}}
-\end{array}} \right
+{{u^\prime} = {f_x}\frac{{X_c^\prime}}{{Z_c^\prime}} + {c_x}}\\
+{{v^\prime} = {f_y}\frac{{Y_c^\prime}}{{Z_c^\prime}} + {c_y}}
+\end{array}}\right
 ```
