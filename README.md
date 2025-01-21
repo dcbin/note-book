@@ -312,6 +312,7 @@ J({\xi ^ \wedge }) = \frac{{\partial {e_i}}}{{\partial \xi }} = \frac{{\partial 
   {\mathbf{I}}&{ - {{({{\mathbf{R}}_{cw}}{{\mathbf{p}}_w} + {\mathbf{t}})}^ \wedge }} \\ 
   {{{\mathbf{0}}^ \top }}&{{{\mathbf{0}}^ \top }} 
 \end{array}} \right]_{\left[ {1:3} \right]}} = \left[ {\begin{array}{*{20}{c}}
-  {\mathbf{I}}&{ - {{({{\mathbf{R}}_{cw}}{{\mathbf{p}}_w} + {\mathbf{t}})}^ \wedge }} 
+  {\mathbf{I}}&{ - {\mathbf{P}}_c^\^} 
 \end{array}} \right]
 ```
+将两个雅可比矩阵相乘即可得到所求的雅可比矩阵。
