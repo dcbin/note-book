@@ -246,7 +246,7 @@ e\left( {{{(\xi  + \Delta \xi )}^ \wedge }} \right) \approx e({\xi ^ \wedge }) +
 ```
 求$`e_i`$对$`\xi `$的雅克比矩阵比求$`e`$对$`\xi `$的雅克比矩阵简单的多，不妨把$`e_i`$写成:
 ```math
-{e_i} = P_{uv}^i - \frac{1}{{{s_i}}}KP_c^i = P_{uv}^i - P_i^'
+e_i = P_{uv}^i - \frac{1}{{s_i}} K P_c^i = P_{uv}^i - P_i'
 ```
 则根据链式求导法则：
 ```math
