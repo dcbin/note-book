@@ -252,7 +252,7 @@ e = \sum\limits_{i = 1}^n {\frac{1}{2}\left\| {{e_i}} \right\|_2^2}
 ```
 - 要优化相机的外参$`\xi `$，则把其余变量视为常量(其实除了$`P_w^i`$其他本身也是常量)，将$`e_i`$在$`\xi `$处**一阶泰勒展开**(这样做的好处参考十四讲P116)，用它的一阶泰勒展开式来近似$`e_i`$在$`\xi `$处的值：
 ```math
-e\left( {{{(\xi  + \Delta \xi )}^ \wedge }} \right) \approx e({\xi ^ \wedge }) + J({\xi ^ \wedge })\Delta {\xi ^ \wedge }
+e_i \left( {{{(\xi  + \Delta \xi )}^ \wedge }} \right) \approx e_i ({\xi ^ \wedge }) + J({\xi ^ \wedge })\Delta {\xi ^ \wedge }
 ```
 求$`e_i`$对$`\xi `$的雅克比矩阵比求$`e`$对$`\xi `$的雅克比矩阵简单的多，不妨把$`e_i`$写成:
 ```math
@@ -316,7 +316,7 @@ J({\xi ^ \wedge }) = \frac{{\partial {e_i}}}{{\partial \xi }} = \frac{{\partial 
   {\mathbf{I}}&{ - {{({{\mathbf{R}}_{cw}}{{\mathbf{p}}_w} + {\mathbf{t}})}^ \wedge }} \\ 
   {{{\mathbf{0}}^ \top }}&{{{\mathbf{0}}^ \top }} 
 \end{array}} \right]_{\left[ {1:3} \right]}} = \left[ {\begin{array}{*{20}{c}}
-  {\mathbf{I}}&{ - {\mathbf{P}}_c^\^} 
+  {\mathbf{I}}&{ - {\mathbf{P}}_c^{\wedge}} 
 \end{array}} \right]
 ```
 将两个雅可比矩阵相乘即可得到所求的雅可比矩阵。
