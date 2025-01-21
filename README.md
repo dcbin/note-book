@@ -285,7 +285,7 @@ J({\xi ^ \wedge }) = \frac{{\partial {e_i}}}{{\partial \xi }} = \frac{{\partial 
 ```
 根据雅可比矩阵的计算规则:
 ```math
-{{J}_{1}}=\left[ \begin{array}{*{35}{l}}
+\frac{\partial {{e}_{i}}}{\partial P_{c}^{i}}={{J}_{1}}=\left[ \begin{array}{*{35}{l}}
    \frac{\partial {{u}^{'}}}{\partial X_{c}^{'}} & \frac{\partial {{u}^{'}}}{\partial Y_{c}^{'}} & \frac{\partial {{u}^{'}}}{\partial Z_{c}^{'}}  \\
    \frac{\partial {{v}^{'}}}{\partial X_{c}^{'}} & \frac{\partial {{v}^{'}}}{\partial Y_{c}^{'}} & \frac{\partial {{v}^{'}}}{\partial Z_{c}^{'}}  \\
 \end{array} \right]=\left[ \begin{array}{*{35}{l}}
