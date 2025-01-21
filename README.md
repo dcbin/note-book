@@ -211,15 +211,40 @@ float y_2 = keypoints2[matches_all[0].trainIdx].pt.y;
 ### Bundle Adjustment
 在一帧图像中，如果有多对在世界坐标系中的3D点和它们对应在像素坐标系下的2D点，则可以用非线性优化的思想，求取一个最优的相机位姿。理论上，这些3D-2D点对满足：
 ```math
-{s_i}\left[ {\begin{array}{*{20}{c}}
+\left[ {\begin{array}{*{20}{c}}
 {{u_i}}\\
 {{v_i}}\\
 1
-\end{array}} \right] = K\exp ({\xi ^ \wedge })\left[ {\begin{array}{*{20}{c}}
+\end{array}} \right] = \frac{1}{{{s_i}}}K\exp ({\xi ^ \wedge })\left[ {\begin{array}{*{20}{c}}
 {{X_i}}\\
 {{Y_i}}\\
 {{Z_i}}\\
 1
-\end{array}} \right] \label{eq1}
+\end{array}} \right]
 ```
-其中$`\xi `$即是相机外参对应的李代数，是一个6维的列向量(描述平移和旋转)。但是，刚开始时我们是不知道$`\xi `$的，优化的思想就是先给$`\xi `$一个初值，现在$`\eqref{eq1}`$的
+其中$`\xi `$即是相机外参对应的李代数，是一个6维的列向量(描述平移和旋转)。但是，刚开始时我们是不知道$`\xi `$的，优化的思想就是先给$`\xi `$一个初值，现在上述等式是不成立的，等式两边存在误差：
+```math
+e = {s_i}\left[ {\begin{array}{*{20}{c}}
+{{u_i}}\\
+{{v_i}}\\
+1
+\end{array}} \right] - K\exp ({\xi ^ \wedge })\left[ {\begin{array}{*{20}{c}}
+{{X_i}}\\
+{{Y_i}}\\
+{{Z_i}}\\
+1
+\end{array}} \right]
+```
+写起来太长，记为：
+```math
+e = \left[ {\begin{array}{*{20}{c}}
+{{u_i}}\\
+{{v_i}}\\
+1
+\end{array}} \right] - \frac{1}{{{s_i}}}K\exp ({\xi ^ \wedge })\left[ {\begin{array}{*{20}{c}}
+{{X_i}}\\
+{{Y_i}}\\
+{{Z_i}}\\
+1
+\end{array}} \right]
+```
