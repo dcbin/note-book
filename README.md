@@ -222,7 +222,7 @@ float y_2 = keypoints2[matches_all[0].trainIdx].pt.y;
 1
 \end{array}} \right]
 ```
-其中$`\xi `$即是相机外参对应的李代数，是一个6维的列向量(描述平移和旋转)。但是，刚开始时我们是不知道$`\xi `$的，优化的思想就是先给$`\xi `$一个初值，现在上述等式是不成立的，等式两边存在误差：
+其中$`\xi `$即是相机外参对应的李代数，是一个6维的列向量(前三维描述平移，后三维描述旋转)。但是，我们是不知道$`\xi `$的，优化的思想就是先给$`\xi `$一个初值，现在上述等式是不成立的，等式两边存在误差：
 ```math
 {e_i} = \left[ {\begin{array}{*{20}{c}}
 {{u_i}}\\
@@ -236,6 +236,16 @@ float y_2 = keypoints2[matches_all[0].trainIdx].pt.y;
 \end{array}} \right] = P_{uv}^i - \frac{1}{{{s_i}}}K\exp ({\xi ^ \wedge })P_w^i
 ```
 - 注意这里的$`{s_i} \ne {Z_i}`$，因为此处的$`Z_i`$是定义在世界坐标系下的，而$`s_i`$描述的是相机坐标系下的某点与光心平面的深度。
+- $`\xi ^ {\wedge }`$是一个$`4\times 4`$的矩阵。注意，这里的$`\xi ^ {\wedge }`$不是$`\xi`$的反对称矩阵，`^`符号表示把一个6维的列向量转换为$`4\times 4`$的矩阵，转换的规则为:
+```math
+\mathfrak{s}\mathfrak{e}(3) = \left\{ {{\mathbf{\xi }} = \left[ {\begin{array}{*{20}{c}}
+  {\mathbf{\rho }} \\ 
+  \phi  
+\end{array}} \right] \in {\mathbb{R}^6},{\mathbf{\rho }} \in {\mathbb{R}^3},\phi  \in \mathfrak{s}\mathfrak{o}(3),{{\mathbf{\xi }}^ \wedge } = \left[ {\begin{array}{*{20}{c}}
+  {{\phi ^ \wedge }}&{\mathbf{\rho }} \\ 
+  {{{\mathbf{0}}^T}}&0 
+\end{array}} \right] \in {\mathbb{R}^{4 \times 4}}} \right\}
+```
 考虑多对点，构造总的误差项：
 ```math
 e = \sum\limits_{i = 1}^n {\frac{1}{2}\left\| {{e_i}} \right\|_2^2}
@@ -252,7 +262,9 @@ e\left( {{{(\xi  + \Delta \xi )}^ \wedge }} \right) \approx e({\xi ^ \wedge }) +
 ```math
 J({\xi ^ \wedge }) = \frac{{\partial {e_i}}}{{\partial \xi }} = \frac{{\partial {e_i}}}{{\partial P_c^i}} \cdot \frac{{\partial P_c^i}}{{\partial \xi}} = {J_1}{J_2}
 ```
-需要分别求两个雅克比矩阵。因为$`P_{uv}^i`$是个常数，所以$`\frac{{\partial {e_i}}}{{\partial P_c^i}}`$可以写成：
+需要分别求两个雅克比矩阵。
+#### 求雅可比矩阵$`J_1`$
+因为$`P_{uv}^i`$是个常数，所以$`\frac{{\partial {e_i}}}{{\partial P_c^i}}`$可以写成：
 ```math
 \frac{{\partial {e_i}}}{{\partial P_c^i}} = \frac{{ - \partial P_i^\prime}}{{\partial P_c^i}}
 ```
@@ -292,4 +304,14 @@ J({\xi ^ \wedge }) = \frac{{\partial {e_i}}}{{\partial \xi }} = \frac{{\partial 
    \frac{{{f}_{x}}}{Z_{c}^{'}} & 0 & -\frac{{{f}_{x}}X_{c}^{'}}{Z{{_{c}^{'}}^{2}}}  \\
    0 & \frac{{{f}_{y}}}{Z_{c}^{'}} & -\frac{{{f}_{y}}Y_{c}^{'}}{Z{{_{c}^{'}}^{2}}}  \\
 \end{array} \right]
+```
+#### 求雅可比矩阵$`J_2`$
+推导过程参考:https://zhuanlan.zhihu.com/p/460985235. 简单来说就是利用扰动模型求导，直接给出结果：
+```math
+\frac{{\partial P_c^i}}{{\partial \xi }} = {J_2} = {\left[ {\begin{array}{*{20}{c}}
+  {\mathbf{I}}&{ - {{({{\mathbf{R}}_{cw}}{{\mathbf{p}}_w} + {\mathbf{t}})}^ \wedge }} \\ 
+  {{{\mathbf{0}}^ \top }}&{{{\mathbf{0}}^ \top }} 
+\end{array}} \right]_{\left[ {1:3} \right]}} = \left[ {\begin{array}{*{20}{c}}
+  {\mathbf{I}}&{ - {{({{\mathbf{R}}_{cw}}{{\mathbf{p}}_w} + {\mathbf{t}})}^ \wedge }} 
+\end{array}} \right]
 ```
