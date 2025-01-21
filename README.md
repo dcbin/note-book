@@ -172,7 +172,7 @@ float y_2 = keypoints2[matches_all[0].trainIdx].pt.y;
 ```
 # 一些术语
 ## 归一化平面
-假设相机坐标系中有一个点$`P_c=(X_c,Y_c,Z_c)`$，那么它在归一化平面的坐标为：$`P=(\frac{{{X_c}}}{{{Z_c}}},\frac{{{Y_c}}}{{{Z_c}}},1)`$。也就是说，归一化平面是与相机光心所在平面距离为1的平面。
+假设相机坐标系中有一个点$`P_c=(X_c,Y_c,Z_c)`$，那么它在归一化平面的坐标为：$`P=(\frac{{{X_c}}}{{{Z_c}}},\frac{{{Y_c}}}{{{Z_c}}},1)`$。也就是说，归一化平面是与相机光心所在平面距离为1的平面。这里要注意，针对的是相机坐标系下的某个点，不是世界坐标系。
 ## 超定方程
 方程组个数大于未知量个数，方程不一定有精确解。处理方法是：
 - 最小二乘法求最优的系数。
@@ -224,20 +224,7 @@ float y_2 = keypoints2[matches_all[0].trainIdx].pt.y;
 ```
 其中$`\xi `$即是相机外参对应的李代数，是一个6维的列向量(描述平移和旋转)。但是，刚开始时我们是不知道$`\xi `$的，优化的思想就是先给$`\xi `$一个初值，现在上述等式是不成立的，等式两边存在误差：
 ```math
-e = {s_i}\left[ {\begin{array}{*{20}{c}}
-{{u_i}}\\
-{{v_i}}\\
-1
-\end{array}} \right] - K\exp ({\xi ^ \wedge })\left[ {\begin{array}{*{20}{c}}
-{{X_i}}\\
-{{Y_i}}\\
-{{Z_i}}\\
-1
-\end{array}} \right]
-```
-写起来太长，记为：
-```math
-e = \left[ {\begin{array}{*{20}{c}}
+{e_i} = \left[ {\begin{array}{*{20}{c}}
 {{u_i}}\\
 {{v_i}}\\
 1
@@ -246,5 +233,15 @@ e = \left[ {\begin{array}{*{20}{c}}
 {{Y_i}}\\
 {{Z_i}}\\
 1
-\end{array}} \right]
+\end{array}} \right] = P_{uv}^i - \frac{1}{{{s_i}}}K\exp ({\xi ^ \wedge })P_w^i
 ```
+- 注意这里的$`{s_i} \ne {Z_i}`$，因为此处的$`Z_i`$是定义在世界坐标系下的，而$`s_i`$描述的是相机坐标系下的某点与光心平面的深度。
+考虑多对点，构造总的误差项：
+```math
+e = \sum\limits_{i = 1}^n {\frac{1}{2}\left\| {{e_i}} \right\|_2^2}
+```
+如果要优化相机的外参$`\xi `$，则把其余变量视为常量(其实除了$`P_w^i`$其他本身也是常量)，将$`e_i`$在$`\xi `$处一阶泰勒展开，用它的一阶泰勒展开式来近似$`e_i`$在$`\xi `$处的值：
+```math
+e\left((\xi+\Delta\xi)^{\wedge}\right)\approx e(\xi^{\wedge})+J(\xi^{\wedge})\Delta\xi^{\wedge}
+```
+求$`e_i`$对$`\xi `$的雅克比矩阵
