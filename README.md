@@ -252,11 +252,11 @@ e\left( {{{(\xi  + \Delta \xi )}^ \wedge }} \right) \approx e({\xi ^ \wedge }) +
 ```math
 J({\xi ^ \wedge }) = \frac{{\partial {e_i}}}{{\partial \xi }} = \frac{{\partial {e_i}}}{{\partial P_c^i}} \cdot \frac{{\partial P_c^i}}{{\partial \xi}}
 ```
-因为$`P_{uv}^i`$是个常数，所以可以写成：
+需要分别求两个雅克比矩阵。因为$`P_{uv}^i`$是个常数，所以$`\frac{{\partial {e_i}}}{{\partial P_c^i}}`$可以写成：
 ```math
 \frac{{\partial {e_i}}}{{\partial P_c^i}} = \frac{{ - \partial P_i^\prime}}{{\partial P_c^i}}
 ```
-写出具体的表达式：
+写出$`-P_i^\prime`$和$`P_c^i`$的关系式：
 ```math
 \left[ {\begin{array}{*{20}{c}}
 {{u^\prime}}\\
@@ -281,5 +281,15 @@ J({\xi ^ \wedge }) = \frac{{\partial {e_i}}}{{\partial \xi }} = \frac{{\partial 
 \left\{ {\begin{array}{*{20}{c}}
 {{u^\prime} = {f_x}\frac{{X_c^\prime}}{{Z_c^\prime}} + {c_x}}\\
 {{v^\prime} = {f_y}\frac{{Y_c^\prime}}{{Z_c^\prime}} + {c_y}}
-\end{array}}\right
+\end{array}}\right.
+```
+根据雅可比矩阵的计算规则:
+```math
+{{J}_{1}}=\left[ \begin{array}{*{35}{l}}
+   \frac{\partial {{u}^{'}}}{\partial X_{c}^{'}} & \frac{\partial {{u}^{'}}}{\partial Y_{c}^{'}} & \frac{\partial {{u}^{'}}}{\partial Z_{c}^{'}}  \\
+   \frac{\partial {{v}^{'}}}{\partial X_{c}^{'}} & \frac{\partial {{v}^{'}}}{\partial Y_{c}^{'}} & \frac{\partial {{v}^{'}}}{\partial Z_{c}^{'}}  \\
+\end{array} \right]=\left[ \begin{array}{*{35}{l}}
+   \frac{{{f}_{x}}}{Z_{c}^{'}} & 0 & -\frac{{{f}_{x}}X_{c}^{'}}{Z{{_{c}^{'}}^{2}}}  \\
+   0 & \frac{{{f}_{y}}}{Z_{c}^{'}} & -\frac{{{f}_{y}}Y_{c}^{'}}{Z{{_{c}^{'}}^{2}}}  \\
+\end{array} \right]
 ```
