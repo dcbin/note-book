@@ -152,7 +152,7 @@ for (int i = 0; i < descriptors1.rows; i++)
 两张图片的关键点匹配结果存储在```cv::DMatch```中，它的成员变量有：
 ```cpp
 CV_PROP_RW int queryIdx; // 关键点在第一个描述子向量中的索引
-CV_PROP_RW int trainIdx; // 关键点在第一个描述子向量中的索引
+CV_PROP_RW int trainIdx; // 关键点在第二个描述子向量中的索引
 CV_PROP_RW int imgIdx;   // 多源图像匹配的参数，用不上
 CV_PROP_RW float distance; // 当前两个关键点的距离，在ORB中是汉明距离
 ```
