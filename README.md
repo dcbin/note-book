@@ -137,7 +137,7 @@ for (int i = 0; i < descriptors1.rows; i++)
 ```
 # 关于OpenCV
 ## 关键点的存储
-关键点的数据结构是```cv::KeyPoint```。一般会创建一个vector来存储关键点：```std::vector\<cv::KeyPoint> keypoints```。一个KeyPoint包括：
+关键点的数据结构是```cv::KeyPoint```。一般会创建一个vector来存储关键点：```std::vector<cv::KeyPoint> keypoints```。一个KeyPoint包括：
 ``` java
 @param pt x & y coordinates of the keypoint
 @param size 关键点的邻域范围
