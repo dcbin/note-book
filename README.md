@@ -180,7 +180,7 @@ float y_2 = keypoints2[matches_all[0].trainIdx].pt.y;
 # 视觉里程计中的相机运动估计
 ## 单目视觉：根据2D-2D匹配点求解相机运动
 ### 对极几何约束
-![image](https://github.com/user-attachments/assets/110fd007-b209-44e8-9292-8013ad2cc3d6)
+![image](https://github.com/user-attachments/assets/110fd007-b209-44e8-9292-8013ad2cc3d6)  
 对极几何约束如上图所示。其中P是关键点在**第一帧图像中的相机坐标**，$`p_1`$和$`p_2`$分别是该关键点在两帧图像中的**像素坐标**。下面推导对极几何约束的数学表达式。  
 两帧图像中的相机数学模型为：
 ```math
