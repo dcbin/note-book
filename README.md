@@ -392,4 +392,27 @@ $`J_3`$与$`J_1`$完全相同，下面推导$`J_4`$：
 ```math
 \left\| {f({\mathbf{x}} + \Delta {\mathbf{x}})} \right\|_2^2 \approx f({\mathbf{x}})_2^2 + {\mathbf{J}}\left( {\mathbf{x}} \right)\Delta {\mathbf{x}} + \frac{1}{2}\Delta {{\mathbf{x}}^T}{\mathbf{H}}\Delta {\mathbf{x}}
 ```
-注意这里边的雅可比矩阵$`J(x)`$和黑森矩阵$`H(x)`$，分别是目标函数$`\left\| {f(x + \Delta x)} \right\|_2^2`$关于$`x`$的一阶和二阶偏导数矩阵。
+注意这里边的雅可比矩阵$`J(x)`$和黑森矩阵$`H(x)`$，分别是函数$`\left\| {f(x)} \right\|_2^2`$关于$`x`$的一阶和二阶偏导数矩阵。注意看等式右边，经过泰勒展开变成了一个关于增量$`\Delta {x}`$的表达式，现在问题就简化了。  
+如果只考虑一阶项，忽略二阶项，等式右边就是关于增量$`\Delta {x}`$的线性方程，此时目标函数对增量$`\Delta {x}`$求导即可得到梯度方向：
+```math
+\frac{{d\left\| {f({\mathbf{x}} + \Delta {\mathbf{x}})} \right\|_2^2}}{{d\Delta {\mathbf{x}}}} = {\mathbf{J}}{\left( {\mathbf{x}} \right)^T}
+```
+所以增量的方向就是梯度的反方向，再给梯度乘个系数$`\lambda`$，把这个系数取名叫学习率，得到最终的增量：$`\Delta {{\mathbf{x}}^*} =  - \lambda {\mathbf{J}}{\left( {\mathbf{x}} \right)^T}`$。这种方式又被叫做梯度下降法或者最速下降法，因为它的增量方向是梯度的负方向。这种方法的问题是过于贪心，需要控制好学习率，否则很有可能反而增加了迭代次数。  
+如果同时考虑一阶项和二阶项，目标函数对增量$`\Delta {x}`$求导得到：
+```math
+\frac{{d\left\| {f({\mathbf{x}} + \Delta {\mathbf{x}})} \right\|_2^2}}{{d\Delta {\mathbf{x}}}} = {\mathbf{J}}{\left( {\mathbf{x}} \right)^T} + {\mathbf{H}}({\mathbf{x}})\Delta {\mathbf{x}}
+```
+令导数为0，即可得到增量：$`\Delta {\mathbf{x}} =  - {\mathbf{H}}{({\mathbf{x}})^{ - 1}}{\mathbf{J}}{\left( {\mathbf{x}} \right)^T}`$。这种方法有个很大的问题就是黑森矩阵$`{\mathbf{H}}({\mathbf{x}})`$不好求。  
+## 高斯-牛顿迭代法
+上面的直接法，无论是一阶还是二阶的方法，都避免不了要求函数$`\left\| {f(x)} \right\|_2^2`$关于$`x`$的一阶和二阶偏导数矩阵，这是非常麻烦的。一种最简单的思想就是，直接把$`f({\mathbf{x}})`$在$`x`$处进行一阶泰勒展开：
+```math
+f({\mathbf{x}} + \Delta {\mathbf{x}}) \approx f({\mathbf{x}}) + {\mathbf{J}}\left( {\mathbf{x}} \right)\Delta {\mathbf{x}}
+```
+问题依然是如何求得增量$`\Delta {x}`$使得目标函数$`\left\| {f(x + \Delta x)} \right\|_2^2`$最小，现在把上面展开后的式子代入目标函数，得到：
+```math
+\left\| {f({\mathbf{x}} + \Delta {\mathbf{x}})} \right\|_2^2 \approx \left\| {f({\mathbf{x}}) + {\mathbf{J}}\left( {\mathbf{x}} \right)\Delta {\mathbf{x}}} \right\|_2^2 = {\left( {f({\mathbf{x}}) + {\mathbf{J}}\left( {\mathbf{x}} \right)\Delta {\mathbf{x}}} \right)^T}\left( {f({\mathbf{x}}) + {\mathbf{J}}\left( {\mathbf{x}} \right)\Delta {\mathbf{x}}} \right)
+```
+把上面的式子全部展开可以得到：
+```math
+\left\| {f({\mathbf{x}} + \Delta {\mathbf{x}})} \right\|_2^2 \approx \left\| {f({\mathbf{x}})} \right\|_2^2 + 2f{({\mathbf{x}})^T}{\mathbf{J}}\left( {\mathbf{x}} \right)\Delta {\mathbf{x}} + \Delta {{\mathbf{x}}^T}{\mathbf{J}}{\left( {\mathbf{x}} \right)^T}{\mathbf{J}}\left( {\mathbf{x}} \right)\Delta {\mathbf{x}}
+```
