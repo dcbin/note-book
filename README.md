@@ -416,3 +416,20 @@ f({\mathbf{x}} + \Delta {\mathbf{x}}) \approx f({\mathbf{x}}) + {\mathbf{J}}\lef
 ```math
 \left\| {f({\mathbf{x}} + \Delta {\mathbf{x}})} \right\|_2^2 \approx \left\| {f({\mathbf{x}})} \right\|_2^2 + 2f{({\mathbf{x}})^T}{\mathbf{J}}\left( {\mathbf{x}} \right)\Delta {\mathbf{x}} + \Delta {{\mathbf{x}}^T}{\mathbf{J}}{\left( {\mathbf{x}} \right)^T}{\mathbf{J}}\left( {\mathbf{x}} \right)\Delta {\mathbf{x}}
 ```
+同样，求上面的式子关于增量$`\Delta {x}`$的导数：
+```math
+\frac{{d\left\| {f({\mathbf{x}} + \Delta {\mathbf{x}})} \right\|_2^2}}{{d\Delta {\mathbf{x}}}} \approx 2{\mathbf{J}}{\left( {\mathbf{x}} \right)^T}f({\mathbf{x}}) + 2{\mathbf{J}}{\left( {\mathbf{x}} \right)^T}{\mathbf{J}}\left( {\mathbf{x}} \right)\Delta {\mathbf{x}}
+```
+令导函数等于0，得到：
+```math
+{\mathbf{J}}{\left( {\mathbf{x}} \right)^T}{\mathbf{J}}\left( {\mathbf{x}} \right)\Delta {\mathbf{x}} =  - {\mathbf{J}}{\left( {\mathbf{x}} \right)^T}f({\mathbf{x}})
+```
+令等式左边系数矩阵为$`H`$，等式右边项为$`g`$，即：
+```math
+\begin{gathered}
+  {\mathbf{H}}\Delta {\mathbf{x}} = g \hfill \\
+  \Delta {\mathbf{x}} = {{\mathbf{H}}^{ - 1}}g \hfill \\ 
+\end{gathered}
+```
+高斯牛顿迭代法避免了求$`\left\| {f(x)} \right\|_2^2`$关于$`x`$的雅可比矩阵和黑森矩阵，只需要求一次$`f({\mathbf{x}})`$关于$`x`$的雅可比矩阵就能求出增量$`\Delta {x}`$，是一种非常简单有效的方法。可以认为高斯牛顿迭代法是利用$`{\mathbf{J}}{\left( {\mathbf{x}} \right)^T}{\mathbf{J}}\left( {\mathbf{x}} \right)`$来近似黑森矩阵。  
+这里边有个问题是，原则上$`{\mathbf{J}}{\left( {\mathbf{x}} \right)^T}{\mathbf{J}}\left( {\mathbf{x}} \right)`$必须是可逆的，但是实际应用中这个条件却不一定成立，后面的L-M方法会在这个方面做一些改进。
