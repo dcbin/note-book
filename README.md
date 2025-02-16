@@ -433,3 +433,20 @@ f({\mathbf{x}} + \Delta {\mathbf{x}}) \approx f({\mathbf{x}}) + {\mathbf{J}}\lef
 ```
 高斯牛顿迭代法避免了求$`\left\| {f(x)} \right\|_2^2`$关于$`x`$的雅可比矩阵和黑森矩阵，只需要求一次$`f({\mathbf{x}})`$关于$`x`$的雅可比矩阵就能求出增量$`\Delta {x}`$，是一种非常简单有效的方法。可以认为高斯牛顿迭代法是利用$`{\mathbf{J}}{\left( {\mathbf{x}} \right)^T}{\mathbf{J}}\left( {\mathbf{x}} \right)`$来近似黑森矩阵。  
 这里边有个问题是，原则上$`{\mathbf{J}}{\left( {\mathbf{x}} \right)^T}{\mathbf{J}}\left( {\mathbf{x}} \right)`$必须是可逆的，但是实际应用中这个条件却不一定成立，后面的L-M方法会在这个方面做一些改进。
+# 更为具体的SLAM优化过程
+在视觉SLAM中，如果是只优化相机位姿或者特征点的3D世界坐标，以只优化相机位姿为例，采用高斯牛顿迭代法，其伪代码为：
+```
+for iter:max_iterations:
+    error = 0;
+    H_total=0;
+    g_total=0;
+    for matched_point:matched_points:
+        计算当前匹配点对的重投影误差; // 这里的重投影误差就是前面的f(x)
+        计算雅可比矩阵;
+        根据雅可比矩阵和重投影误差计算H矩阵和g向量;
+        将当前的H和g累加到H_total和g_total; // 因为误差项是最小二乘累加而来的,总的H矩阵和g向量自然是每一项误差累加
+    根据H_total和g_total解出相机位姿增量;
+    判断一下增量是否合理,以及增量是否足够小从而达到终止条件;
+    把增量的李代数表示转换为李群表示;
+    用当前相机位姿左乘增量进行位姿更新;
+```
