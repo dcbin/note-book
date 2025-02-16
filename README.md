@@ -445,8 +445,43 @@ for iter:max_iterations:
         计算雅可比矩阵;
         根据雅可比矩阵和重投影误差计算H矩阵和g向量;
         将当前的H和g累加到H_total和g_total; // 因为误差项是最小二乘累加而来的,总的H矩阵和g向量自然是每一项误差累加
+    end
     根据H_total和g_total解出相机位姿增量;
     判断一下增量是否合理,以及增量是否足够小从而达到终止条件;
     把增量的李代数表示转换为李群表示;
     用当前相机位姿左乘增量进行位姿更新;
+end
 ```
+但是，如果要同时做相机位姿和特征点位置更新，就不能这样单独求每一项的H和g再累加了，因为相机位姿和特征点坐标是会相互影响的(试想一下：更新完相机位姿之后，在优化特征点坐标计算重投影误差的时候就应该用这个新的相机位姿了)。所以办法就是把重投影误差函数写成一个列向量，具体来说：假如有N对匹配点，那么重投影误差向量的维度就是$`2N \times 1`$(每两行就是一对匹配点的重投影误差向量($`2 \times 1`$))：
+```math
+e = {\left[ {\begin{array}{*{20}{c}}
+  {e_{uv}^1} \\ 
+  {e_{uv}^2} \\ 
+   \vdots  \\ 
+  {e_{uv}^n} 
+\end{array}} \right]_{_{2N \times 1}}}
+```
+待优化的总状态向量由相机位姿的李代数和每个3D点的坐标组成:
+```math
+x = {\left[ {\begin{array}{*{20}{c}}
+  {{\xi _{6 \times 1}}} \\ 
+  {P_w^1} \\ 
+  {P_w^2} \\ 
+   \vdots  \\ 
+  {P_w^n} 
+\end{array}} \right]_{\left( {6 + 3N} \right) \times 1}}
+```
+雅可比矩阵的维度就是$`2N \times \left( {6 + 3N} \right)`$：
+```math
+J = {\left[ {\begin{array}{*{20}{c}}
+  {{{\left( {\frac{{\partial e_{uv}^1}}{{\partial {\xi _{6 \times 1}}}}} \right)}_{2 \times 6}}}&{{{\left( {\frac{{\partial e_{uv}^1}}{{\partial P_w^1}}} \right)}_{2 \times 3}}}&0& \cdots &0 \\ 
+  {{{\left( {\frac{{\partial e_{uv}^2}}{{\partial {\xi _{6 \times 1}}}}} \right)}_{2 \times 6}}}&0&{{{\left( {\frac{{\partial e_{uv}^2}}{{\partial P_w^2}}} \right)}_{2 \times 3}}}& \cdots &0 \\ 
+   \vdots & \vdots & \ddots & \vdots & \vdots  \\ 
+  {{{\left( {\frac{{\partial e_{uv}^n}}{{\partial {\xi _{6 \times 1}}}}} \right)}_{2 \times 6}}}&0&0& \cdots &{{{\left( {\frac{{\partial e_{uv}^n}}{{\partial P_w^n}}} \right)}_{2 \times 3}}} 
+\end{array}} \right]_{2N \times \left( {6 + 3N} \right)}}
+```
+可以看出来这个雅可比矩阵维度会随着待优化的状态变量的维度增大而增大，这也是为什么以前的SLAM系统不爱用非线性优化而爱用滤波器。这个雅可比矩阵是一个稀疏矩阵，其中很大一部分都是0矩阵，所以$`H = {J^T}J`$也是一个稀疏矩阵，回忆一下那个增量方程：
+```math
+H\Delta x = g
+```
+现在已知H是一个稀疏矩阵，就有很多方法来解这个线性方程组了，比如Cholesky分解、稀疏QR分解等等手段，总之利用稀疏性就能快速求出这个维度很高的增量$`\Delta x`$。
