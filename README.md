@@ -560,7 +560,7 @@ public:
 5. 定义最核心的稀疏优化器g2o::SparseOptimizer，把顶点和边加入到SparseOptimizer中。这个优化器负责管理所有的优化变量，以及前面定义的所有求解器，管理整个优化过程。
 6. 设置好参数之后开始优化。
 
-下面以一个具体的例子来说明如何按照上述步骤使用g2o进行优化。
+下面以一个具体的例子来说明如何按照上述步骤使用g2o进行优化。实际编写程序的顺序与上述步骤略有不同，但差别不大。
 ```cpp
 int main() {
     using BlockSolver = g2o::BlockSolver<g2o::BlockSolverTraits<6, 3>>;
