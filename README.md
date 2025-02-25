@@ -557,5 +557,21 @@ public:
 
 下面以一个具体的例子来说明如何按照上述步骤使用g2o进行优化。
 ```cpp
+int main() {
+    using BlockSolver = g2o::BlockSolver<g2o::BlockSolverTraits<6, 3>>;
+    using LinearSolver = g2o::LinearSolverDense<BlockSolver::PoseMatrixType>;
+    using optimizer = g2o::OptimizationAlgorithmLevenberg;
 
+    // 1. 构建增量方程的线性求解器LinearSolver
+    std::unique_ptr<LinearSolver> linear_solver = std::make_unique<LinearSolver>();
+    // 2. 构建BlockSolver,并用LinearSolver初始化
+    std::unique_ptr<BlockSolver> block_solver = std::make_unique<BlockSolver>(std::move(linear_solver));
+    // 3. 构建总求解器并用BlockSolver初始化
+    std::unique_ptr<optimizer> solver = std::make_unique<optimizer>(std::move(block_solver));
+    // 4. 构建稀疏优化器,并设置优化算法
+    g2o::SparseOptimizer sparse_optimizer;
+    sparse_optimizer.setAlgorithm(solver.get());
+    // 5. 添加顶点和边
+    // 6. 初始化优化器并进行迭代优化
+}
 ```
