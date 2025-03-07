@@ -608,17 +608,70 @@ public:
 - 在匹配之前需要从局部地图中筛选出在当前帧视野范围内的候选点，此时需要当前帧的相机外参，可以用上一帧的外参近似
 
 # 后端(backend)
-## 基本概念
+## 以BA为基础的后端优化
 回忆一下前端里程计做的事情：根据当前帧和参考帧（或局部地图）的特征点匹配关系，使用PnP及BA来估算相机的外参。对于BA来讲，前端里程计中的优化变量是当前帧的相机位姿（也许还需要加上3D点的坐标），我们仅仅关注当前帧的位姿，不会去优化之前的相机位姿。所以即使这个BA问题图优化模型中边的数量比较多，雅可比矩阵的维度也就在几百维左右。  
-而后端则不同，在后端中，我们有关键帧的概念，我们会优化许多关键帧的位姿，这个BA问题图优化模型中边的数量可能会有上万条（假设每一个关键帧有500个特征点，20帧关键帧就会有10000多条边），所以雅可比矩阵的维度也会特别大，H矩阵同样如此，此时线性方程组$`H\Delta x = g`$的求解会非常困难（矩阵直接求逆的时间复杂度为$`O\left( {{n^3}} \right)`$）。好在这里的H矩阵具有特别的稀疏性，所以可以快速求解这个线性方程组，得到增量。
-## 雅可比矩阵和H矩阵的稀疏性讨论
-考虑后端中所有的优化变量，包括：所有待优化的相机位姿、所有的路标点。分别用变量$`{{\mathbf{x}}_c}`$和变量$`{{\mathbf{x}}_p}`$表示：
+而以BA为基础的后端则不同，在后端中，我们有关键帧的概念，我们会优化许多关键帧的位姿，这个BA问题图优化模型中边的数量可能会有上万条（假设每一个关键帧有500个特征点，20帧关键帧就会有10000多条边），所以雅可比矩阵的维度也会特别大，H矩阵同样如此，此时线性方程组$`H\Delta x = g`$的求解会非常困难（矩阵直接求逆的时间复杂度为$`O\left( {{n^3}} \right)`$）。好在这里的H矩阵具有特别的稀疏性，所以可以快速求解这个线性方程组，得到增量。
+### 雅可比矩阵和H矩阵的稀疏性讨论
+考虑后端中所有的优化变量，包括：所有待优化的相机位姿、所有的路标点：$`{\mathbf{x}} = {[{{\mathbf{\xi }}_1}, \ldots ,{{\mathbf{\xi }}_m},{{\mathbf{p}}_1}, \ldots ,{{\mathbf{p}}_n}]^T}`$。用$`{e_{ij}}`$表示第i个相机位姿观察第j个路标产生的误差项，总的误差可以表示为：
+```math
+\frac{1}{2}{\left\| {f\left( x \right)} \right\|^2} = \frac{1}{2}\sum\limits_{i = 1}^m {\sum\limits_{j = 1}^n {\left\| {{{\mathbf{e}}_{ij}}^2} \right\|} }  = \frac{1}{2}\sum\limits_{i = 1}^m {\sum\limits_{j = 1}^n {{{\left\| {{z_{ij}} - h\left( {{{\mathbf{\zeta }}_i},{{\mathbf{p}}_j}} \right)} \right\|}^2}} }
+```
+这里面$`{{z_{ij}}}`$表示第i个位姿对路标j的观测，即像素坐标；同样将$`f(\mathbf{x})`$这个二元函数进行二元泰勒展开，得到展开后的目标函数：
+```math
+\frac{1}{2}{\left\| {f({\mathbf{x}} + \Delta {\mathbf{x}})} \right\|^2} \approx \frac{1}{2}\sum\limits_{i = 1}^m {\sum\limits_{j = 1}^n {{{\left\| {{{\mathbf{e}}_{ij}} + {{\mathbf{F}}_{ij}}\Delta {{\mathbf{\xi }}_i} + {{\mathbf{E}}_{ij}}\Delta {{\mathbf{p}}_j}} \right\|}^2}} }
+```
+其中$`{{\mathbf{F}}_{ij}}`$表示$`e_ij`$对第i个位姿求导的雅可比矩阵块，是一个$`2 \times 6`$的矩阵；$`{{{\mathbf{E}}_{ij}}}`$表示$`e_ij`$对第j个路标点求导的雅可比矩阵块，是一个$`2 \times 3`$的矩阵块。把总的优化变量分开，分别用变量$`{{\mathbf{x}}_c}`$和变量$`{{\mathbf{x}}_p}`$表示相机位姿和路标点位置：
 ```math
 \begin{gathered}
   {{\mathbf{x}}_c} = {[{{\mathbf{\xi }}_1},{{\mathbf{\xi }}_2}, \ldots ,{{\mathbf{\xi }}_m}]^T} \in {\mathbb{R}^{6m}} \hfill \\
   {{\mathbf{x}}_p} = {[{{\mathbf{p}}_1},{{\mathbf{p}}_2}, \ldots ,{{\mathbf{p}}_n}]^T} \in {\mathbb{R}^{3n}} \hfill \\ 
 \end{gathered} 
 ```
+则目标函数的泰勒展开项可以表示为：
+```math
+\frac{1}{2}\left\|f(\boldsymbol{x}+\Delta\boldsymbol{x})\right\|^2=\frac{1}{2}\left\|e+\boldsymbol{F}\Delta\boldsymbol{x}_c+\boldsymbol{E}\Delta\boldsymbol{x}_p\right\|^2
+```
+这里面的F和E是由前面的雅可比矩阵块拼接起来的，是维度非常高的矩阵。总体的雅可比矩阵由F和E组合：
+```math
+{\mathbf{J}} = \left[ {\begin{array}{*{20}{c}}
+  {\mathbf{F}}&{\mathbf{E}} 
+\end{array}} \right]
+```
+### 图解雅可比矩阵与H矩阵
+![image](https://github.com/user-attachments/assets/3b863262-1f36-4b42-8ec8-a063be9bbee7)
+上图中有两个相机位姿和六个路标，若两顶点之间有边则表示在该位姿处对路标点进行了观测。写出这个图优化模型的目标函数：
+```math
+\frac{1}{2}\left(\left\|e_{11}\right\|^2+\left\|e_{12}\right\|^2+\left\|e_{13}\right\|^2+\left\|e_{14}\right\|^2+\left\|e_{23}\right\|^2+\left\|e_{24}\right\|^2+\left\|e_{25}\right\|^2+\left\|e_{26}\right\|^2\right)
+```
+这个问题中的待优化变量为：$`{\mathbf{x}} = {\left( {{{\mathbf{\xi }}_1},{{\mathbf{\xi }}_2},{{\mathbf{p}}_1}, \ldots ,{{\mathbf{p}}_2}} \right)^T}`$，我们先求代价函数（注意不是目标函数）$`{\mathbf e}_11`$对优化变量的偏导数：
+```math
+{{\mathbf{J}}_{11}} = \frac{{\partial {{\mathbf{e}}_{11}}}}{{\partial {\mathbf{x}}}} = \left( {\begin{array}{*{20}{c}}
+  {\frac{{\partial {{\mathbf{e}}_{11}}}}{{\partial {{\mathbf{\xi }}_1}}}}&0&{\frac{{\partial {{\mathbf{e}}_{11}}}}{{\partial {{\mathbf{p}}_1}}}}&0&0&0&0&0 
+\end{array}} \right)
+```
+这就是稀疏性的来源，代价函数对优化变量的导数仅与这条边连接的两个顶点有关，其他地部分都为0矩阵。以此类推，得到总的雅可比矩阵：
+![image](https://github.com/user-attachments/assets/eacce5ef-31b7-4485-9a85-27afe908fa5a)
+如果使用GN算增量，那么$`{\mathbf{H}} = {{\mathbf{J}}^T}{\mathbf{J}}`$，H矩阵的形式为：
+![image](https://github.com/user-attachments/assets/77c3f584-8ab9-4e4f-aa6f-31af51ce6364)
+一般来讲路标点的数量远多于相机位姿，所以这个矩阵的右下角对角部分会特别大，形如下图：
+![image](https://github.com/user-attachments/assets/fb504c0b-80b7-4e7e-9378-0e8c1ddeae93)
+把H矩阵按照上图划分为四个部分，需要求解的线性方程组可以写为：
+```math
+\left[ {\begin{array}{*{20}{c}}
+  {\mathbf{B}}&{\mathbf{E}} \\ 
+  {{{\mathbf{E}}^T}}&{\mathbf{C}} 
+\end{array}} \right]\left[ {\begin{array}{*{20}{c}}
+  {\Delta {{\mathbf{x}}_c}} \\ 
+  {\Delta {{\mathbf{x}}_p}} 
+\end{array}} \right] = \left[ {\begin{array}{*{20}{c}}
+  {\mathbf{v}} \\ 
+  {\mathbf{w}} 
+\end{array}} \right]
+```
+要通过高斯消元来解这个线性方程组，求解过程的推导见十四讲。总之我们可以较为快速的解出这个线性方程组，得到增量，然后对待优化的变量进行更新，这就是基于BA的后端优化的基本数学原理。  
+总结一下，后端主要利用H矩阵的稀疏性，加速求解线性方程组计算增量。后端与前端非常相似：它们的代价函数都是重投影误差，目标函数都是基于最小二乘法构建；区别在于后端需要优化多个时刻的相机位姿，而前端里程计只需要考虑优化当前帧的相机位姿。
+## 基于位姿图优化的后端
+前面介绍的基于BA的后端，尽管利用H矩阵的稀疏性能够加速求解线性方程组，但H矩阵的维度会随着SLAM运行不断增大，所以求解速度会持续降低，位姿图优化是一种更为快速的后端优化策略。
 # g2o使用指南
 ## 基本的使用流程
 图优化能够直观的表达优化变量、误差函数的结构与关联。在图优化中，**顶点**表示**待优化的变量**，顶点连接的**边**表示**误差函数**。例如，在3D-2D运动估计问题中，如果我要优化相机位姿和3D点坐标，那么顶点就是6维的相机位姿向量和3维的特征点坐标，边就是重投影误差。  
