@@ -639,6 +639,7 @@ public:
 ```
 ### 图解雅可比矩阵与H矩阵
 ![image](https://github.com/user-attachments/assets/3b863262-1f36-4b42-8ec8-a063be9bbee7)
+
 上图中有两个相机位姿和六个路标，若两顶点之间有边则表示在该位姿处对路标点进行了观测。写出这个图优化模型的目标函数：
 ```math
 \frac{1}{2}\left(\left\|e_{11}\right\|^2+\left\|e_{12}\right\|^2+\left\|e_{13}\right\|^2+\left\|e_{14}\right\|^2+\left\|e_{23}\right\|^2+\left\|e_{24}\right\|^2+\left\|e_{25}\right\|^2+\left\|e_{26}\right\|^2\right)
@@ -650,12 +651,18 @@ public:
 \end{array}} \right)
 ```
 这就是稀疏性的来源，代价函数对优化变量的导数仅与这条边连接的两个顶点有关，其他地部分都为0矩阵。以此类推，得到总的雅可比矩阵：
+
 ![image](https://github.com/user-attachments/assets/eacce5ef-31b7-4485-9a85-27afe908fa5a)
+
 如果使用GN算增量，那么$`{\mathbf{H}} = {{\mathbf{J}}^T}{\mathbf{J}}`$，H矩阵的形式为：
+
 ![image](https://github.com/user-attachments/assets/77c3f584-8ab9-4e4f-aa6f-31af51ce6364)
+
 一般来讲路标点的数量远多于相机位姿，所以这个矩阵的右下角对角部分会特别大，形如下图：
+
 ![image](https://github.com/user-attachments/assets/fb504c0b-80b7-4e7e-9378-0e8c1ddeae93)
 把H矩阵按照上图划分为四个部分，需要求解的线性方程组可以写为：
+
 ```math
 \left[ {\begin{array}{*{20}{c}}
   {\mathbf{B}}&{\mathbf{E}} \\ 
