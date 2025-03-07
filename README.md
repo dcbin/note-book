@@ -661,8 +661,8 @@ public:
 一般来讲路标点的数量远多于相机位姿，所以这个矩阵的右下角对角部分会特别大，形如下图：
 
 ![image](https://github.com/user-attachments/assets/fb504c0b-80b7-4e7e-9378-0e8c1ddeae93)
-把H矩阵按照上图划分为四个部分，需要求解的线性方程组可以写为：
 
+把H矩阵按照上图划分为四个部分，需要求解的线性方程组可以写为：
 ```math
 \left[ {\begin{array}{*{20}{c}}
   {\mathbf{B}}&{\mathbf{E}} \\ 
