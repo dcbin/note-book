@@ -485,7 +485,17 @@ f({\mathbf{x}} + \Delta {\mathbf{x}}) \approx f({\mathbf{x}}) + {\mathbf{J}}\lef
 \end{gathered}
 ```
 高斯牛顿迭代法避免了求$`\left\| {f(x)} \right\|_2^2`$关于$`x`$的雅可比矩阵和黑森矩阵，只需要求一次$`f({\mathbf{x}})`$关于$`x`$的雅可比矩阵就能求出增量$`\Delta {x}`$，是一种非常简单有效的方法。可以认为高斯牛顿迭代法是利用$`{\mathbf{J}}{\left( {\mathbf{x}} \right)^T}{\mathbf{J}}\left( {\mathbf{x}} \right)`$来近似黑森矩阵。  
-这里边有个问题是，原则上$`{\mathbf{J}}{\left( {\mathbf{x}} \right)^T}{\mathbf{J}}\left( {\mathbf{x}} \right)`$必须是可逆的，但是实际应用中这个条件却不一定成立，后面的L-M方法会在这个方面做一些改进。
+这里边有个问题是，原则上$`{\mathbf{J}}{\left( {\mathbf{x}} \right)^T}{\mathbf{J}}\left( {\mathbf{x}} \right)`$必须是可逆的，但是实际应用中这个条件却不一定成立，后面的L-M方法会在这个方面做一些改进。  
+关于H矩阵的讨论：
+```math
+{{\mathbf{x}}^T}{\mathbf{Hx}} = {{\mathbf{x}}^T}{{\mathbf{J}}^T}{\mathbf{Jx}} = {\left( {{\mathbf{Jx}}} \right)^T}{\mathbf{Jx}} = \left\| {{\mathbf{Jx}}} \right\|_2^2
+```
+要保证H正定，则$`{{\mathbf{Jx}}}`$不能等于0，但显然不能保证雅可比矩阵J是列满秩的，所以$`{{\mathbf{Jx}}}`$可能等于0，因此H只是**半正定**的。  
+LH方法的做法是，让H加上$`\lambda {\mathbf{I}}`$，变为：$`{\mathbf{H}} + \lambda {\mathbf{I}}`$。现在讨论这个式子的正定性：
+```math
+{{\mathbf{x}}^T}\left( {{\mathbf{H}} + \lambda {\mathbf{I}}} \right){\mathbf{x}} = {{\mathbf{x}}^T}\left( {{{\mathbf{J}}^T}{\mathbf{J}} + \lambda {\mathbf{I}}} \right){\mathbf{x}} = \left\| {{\mathbf{Jx}}} \right\|_2^2 + \lambda \left\| {\mathbf{x}} \right\|_2^2
+```
+从上式可以看出，只要系数$`\lambda`$是非负的，这个矩阵就一定是正定的，也就意味着它一定可逆。
 # 更为具体的SLAM优化过程
 在视觉SLAM中，如果是只优化相机位姿或者特征点的3D世界坐标，以只优化相机位姿为例，采用高斯牛顿迭代法，其伪代码为：
 ```
